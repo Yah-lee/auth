@@ -1,27 +1,27 @@
-const { error } = require("console");
 const { Sequelize } = require("sequelize");
 
-require("dotenv").config();
+const sequelize = new Sequelize("auth", "root", "", {
+  host: "127.0.0.1",
+  dialect: "mysql",
+  timezone: "+07:00",
+});
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.USER,
-  process.env.PASSWORD,
-  {
-    dialect: "mysql",
-    host: process.env.HOST,
-    dialectOptions: {},
-  }
-);
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Table created successfully!");
+  })
+  .catch((err) => {
+    console.log("Unable to create table:", err);
+  });
 
 sequelize
   .authenticate()
   .then(() => {
-    console.log("Connection has been established successfully.");
+    console.log("Database connected successfully");
   })
-  .catch((error) => {
-    console.log("Unable to connect to the database:", error);
+  .catch((err) => {
+    console.log("Unable to connect to database", err);
   });
 
-sequelize.sync();
 module.exports = sequelize;

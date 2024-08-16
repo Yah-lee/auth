@@ -1,9 +1,5 @@
-const controllers = require("../controllers/user.controllers");
-const routes = require("express").Router();
+const express = require("express");
+const router = express.Router();
+const controller = require("../controllers/user.controllers");
 
-module.exports = routes
-  .get("/", controllers.getAll)
-  .post("/", controllers.create)
-  .get("/:id", controllers.getOne)
-  .put("/:id", controllers.update)
-  .delete("/:id", controllers.delete);
+module.exports = router;

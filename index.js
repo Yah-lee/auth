@@ -1,25 +1,15 @@
 const express = require("express");
-const core = require("core");
-const bodyParser = require("body-parser");
-
-require("dotenv").config();
-
-const routes = require("./routes/user.routes");
-
 const app = express();
+const core = require("core");
+const port = 4000;
 
 app.use(core());
-app.use(bodyParser.json());
-app.use(routes);
+app.use(express.json());
 
-jvvc;
+const userRoutes = require("./routes/user.routes");
 
-app.get("/", (req, res) => {
-  return res.json("Wellcome to my api");
-});
-
-const port = process.env.PORT || 8888;
+app.use("/user", userRoutes);
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-})
+  console.log(`Server is running on port ${port}`);
+});
