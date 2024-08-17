@@ -3,7 +3,7 @@ const sequelize = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 const User = sequelize.define("User", {
   id: {
-    typeDataTypes: DataTypes.UUID,
+    type: DataTypes.UUID,  // Fixed typo here
     primaryKey: true,
     defaultValue: () => uuidv4(),
   },
