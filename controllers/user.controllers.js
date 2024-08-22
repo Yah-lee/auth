@@ -60,7 +60,7 @@ exports.Login_User = async (req, res) => {
     });
 
     if (!foundUser) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "Invalid Email or Phone Number" });
     }
 
     if (!foundUser.Password) {
