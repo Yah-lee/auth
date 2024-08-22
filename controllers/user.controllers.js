@@ -1,28 +1,31 @@
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const user = require("../models/user.models");
+const { error } = require("console");
 
 // Create User Function
 exports.Create_User = async (req, res) => {
   const { First_Name, Last_Name, Email, Phone_Number, Password } = req.body;
 
+  // check if email already exists
+  const Exists_Email = await user.findOne({ where: { Email: Email } });
+  if (Exists_Email) {
+    return res.status(400).json({ error: "Email already exists" });
+  }
+
+  // check if phone number already exists
+  const Exists_Phone_NUmber = await user.findOne({
+    where: { Phone_Number: Phone_Number },
+  });
+  if (Exists_Phone_NUmber) {
+    return res.status(400).json({ error: "Phone number already exists" });
+  }
+  // hash password
+  const hashedPassword = await bcrypt.hash(Password, 10);
+
+  // create new user
   try {
-    // Check if the user already exists by Email
-    const existingUser = await user.findOne({ where: { Email } });
-    if (existingUser) {
-      return res.status(409).json({ error: "email already exists" });
-    }
-
-    // Check if the phone number already exists
-    const existingPhoneNumber = await user.findOne({ where: { Phone_Number } });
-    if (existingPhoneNumber) {
-      return res.status(409).json({ error: "Phone number already exists" });
-    }
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(Password, 10);
-
-    // Create the new user
     const New_user = await user.create({
       First_Name,
       Last_Name,
@@ -30,13 +33,12 @@ exports.Create_User = async (req, res) => {
       Phone_Number,
       Password: hashedPassword,
     });
-
-    return res.status(201).json(New_user);
+    return res.status(201).json({ New_user });
   } catch (err) {
     console.error("Error creating user", err.message);
     return res.status(500).json({
       error: "Error creating user",
-      details: err.message,
+      message: err.message,
     });
   }
 };
