@@ -1,32 +1,32 @@
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
-const user = require("../models/user.models");
+const User = require("../models/user.models");
 const { error } = require("console");
 
 // Create User Function
 exports.Create_User = async (req, res) => {
   const { First_Name, Last_Name, Email, Phone_Number, Password } = req.body;
 
-  // check if email already exists
-  const Exists_Email = await user.findOne({ where: { Email: Email } });
+  // Check if email already exists
+  const Exists_Email = await User.findOne({ where: { Email } });
   if (Exists_Email) {
     return res.status(400).json({ error: "Email already exists" });
   }
 
-  // check if phone number already exists
-  const Exists_Phone_NUmber = await user.findOne({
-    where: { Phone_Number: Phone_Number },
+  // Check if phone number already exists
+  const Exists_Phone_Number = await User.findOne({
+    where: { Phone_Number },
   });
-  if (Exists_Phone_NUmber) {
+  if (Exists_Phone_Number) {
     return res.status(400).json({ error: "Phone number already exists" });
   }
-  // hash password
+
+  // Hash password
   const hashedPassword = await bcrypt.hash(Password, 10);
 
-  // create new user
+  // Create new user
   try {
-    const hashedPassword = await bcrypt.hash(Password, 10);
-    const New_user = await user.create({
+    const New_user = await User.create({
       First_Name,
       Last_Name,
       Email,
@@ -53,7 +53,7 @@ exports.Login_User = async (req, res) => {
 
   try {
     // Find user by email or phone number using Sequelize's Op.or
-    const foundUser = await user.findOne({
+    const foundUser = await User.findOne({
       where: {
         [Op.or]: [{ Email: identifier }, { Phone_Number: identifier }],
       },
@@ -64,9 +64,9 @@ exports.Login_User = async (req, res) => {
     }
 
     if (!foundUser.Password) {
-      return res
-        .status(500)
-        .json({ error: "User's password is missing in the database" });
+      return res.status(500).json({
+        error: "User's password is missing in the database",
+      });
     }
 
     // Compare the provided password with the stored hashed password
@@ -96,49 +96,38 @@ exports.Login_User = async (req, res) => {
   }
 };
 
-exports.findOne = async (req, res) => {
-  const { identifier } = req.params; // Assume identifier is passed as a URL parameter
+
+
+// Find User Function
+exports.Find_One = async (req, res) => {
+  const { id, email, phoneNumber } = req.query;
 
   try {
-    // Find user by first name, last name, email, or phone number using Sequelize's Op.or
-    const foundUser = await user.findOne({
-      where: {
-        [Op.or]: [
-          { First_Name: identifier },
-          { Last_Name: identifier },
-          { Email: identifier },
-          { Phone_Number: identifier },
-        ],
-      },
-    });
+    // Determine which field to use in the search
+    const whereCondition = id
+      ? { id }
+      : email
+      ? { Email: email }
+      : phoneNumber
+      ? { Phone_Number: phoneNumber }
+      : null;
 
-    if (!foundUser) {
+    if (!whereCondition) {
+      return res.status(400).json({ error: "Please provide an id, email, or phone number to search." });
+    }
+
+    const user = await User.findOne({ where: whereCondition });
+
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Return found user details (excluding the password)
-    return res.status(200).json({
-      id: foundUser.id, // Assuming 'id' is the primary key field in your user model
-      First_Name: foundUser.First_Name,
-      Last_Name: foundUser.Last_Name,
-      Email: foundUser.Email,
-      Phone_Number: foundUser.Phone_Number,
-    });
+    return res.status(200).json({ user });
   } catch (err) {
     console.error("Error finding user", err.message);
     return res.status(500).json({
       error: "Error finding user",
-      details: err.message,
+      message: err.message,
     });
-  }
-};
-
-exports.findAll = async (req, res) => {
-  try {
-    const data = await user.findAll();
-    return res.status(200).json(data);
-  } catch (err) {
-    console.error("Error finding all users", err.message);
-    return res.status(500).json({ error: "Failed to find all users" });
   }
 };
