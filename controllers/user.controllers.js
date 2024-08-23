@@ -95,3 +95,50 @@ exports.Login_User = async (req, res) => {
     });
   }
 };
+
+exports.findOne = async (req, res) => {
+  const { identifier } = req.params; // Assume identifier is passed as a URL parameter
+
+  try {
+    // Find user by first name, last name, email, or phone number using Sequelize's Op.or
+    const foundUser = await user.findOne({
+      where: {
+        [Op.or]: [
+          { First_Name: identifier },
+          { Last_Name: identifier },
+          { Email: identifier },
+          { Phone_Number: identifier },
+        ],
+      },
+    });
+
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Return found user details (excluding the password)
+    return res.status(200).json({
+      id: foundUser.id, // Assuming 'id' is the primary key field in your user model
+      First_Name: foundUser.First_Name,
+      Last_Name: foundUser.Last_Name,
+      Email: foundUser.Email,
+      Phone_Number: foundUser.Phone_Number,
+    });
+  } catch (err) {
+    console.error("Error finding user", err.message);
+    return res.status(500).json({
+      error: "Error finding user",
+      details: err.message,
+    });
+  }
+};
+
+exports.findAll = async (req, res) => {
+  try {
+    const data = await user.findAll();
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error("Error finding all users", err.message);
+    return res.status(500).json({ error: "Failed to find all users" });
+  }
+};
