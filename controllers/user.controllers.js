@@ -96,8 +96,6 @@ exports.Login_User = async (req, res) => {
   }
 };
 
-
-
 // Find User Function
 exports.Find_One = async (req, res) => {
   const { id, email, phoneNumber } = req.query;
@@ -113,7 +111,11 @@ exports.Find_One = async (req, res) => {
       : null;
 
     if (!whereCondition) {
-      return res.status(400).json({ error: "Please provide an id, email, or phone number to search." });
+      return res
+        .status(400)
+        .json({
+          error: "Please provide an id, email, or phone number to search.",
+        });
     }
 
     const user = await User.findOne({ where: whereCondition });
@@ -148,5 +150,30 @@ exports.Find_All = async (req, res) => {
       error: "Error fetching users",
       message: err.message,
     });
+  }
+};
+
+exports.Update_User = async (req, res) => {
+  const { id } = req.params;
+  const { First_Name, Last_Name, Email, Phone_Number, Password } = req.body;
+  try {
+    const user = await User.findOne({ where: { id: id } });
+    if (!user) {
+      return res.status(404).json({ error: "Can't update user " });
+    }
+    const Update_User = {
+      First_Name: First_Name || User.First_Name,
+      Last_Name: Last_Name || User.Last_Name,
+      Email: Email || User.Email,
+      Phone_Number: Phone_Number || User.Phone_Number,
+      Password: Password || User.Password,
+    };
+    await user.update(Update_User);
+    return res.status(200).json({ message: "User updated successful" });
+  } catch (err) {
+    console.error("Error updating user", err.message);
+    return res
+      .status(500)
+      .json({ error: "Error updating user", message: err.message });
   }
 };
