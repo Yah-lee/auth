@@ -195,6 +195,7 @@ exports.Change_Password = async (req, res) => {
   const { current, new: newPassword, confirm } = req.body;
   const userId = req.user.id;
 
+  // Check if new password and confirmation match
   if (newPassword !== confirm) {
     return res.status(400).json({ error: "New password and confirmation do not match" });
   }
@@ -222,7 +223,7 @@ exports.Change_Password = async (req, res) => {
 
     return res.status(200).json({ message: "Password updated successfully" });
   } catch (err) {
-    console.error("Error changing password", err.message);
+    console.error("Error changing password:", err.message);
     return res.status(500).json({
       error: "Error changing password",
       message: err.message,
