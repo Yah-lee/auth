@@ -190,47 +190,7 @@ exports.Delete_User = async (req, res) => {
   }
 };
 
-
+// Change Password Function
 exports.Change_Password = async (req, res) => {
-  // Destructure the fields from the request body with better variable names
-  const { current, newPassword, confirm } = req.body;
-  const userId = req.user.id;
-
-  // Check if new password and confirmation match
-  if (newPassword !== confirm) {
-    return res.status(400).json({ error: "New password and confirmation do not match" });
-  }
-
-  try {
-    // Find the user by ID
-    const user = await User.findOne({ where: { id: userId } });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    // Compare the current password with the stored hashed password
-    const isMatch = await bcrypt.compare(current, user.Password);
-
-    if (!isMatch) {
-      return res.status(401).json({ error: "Current password is incorrect" });
-    }
-
-    // Hash the new password
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password
-    await user.update({ Password: hashedNewPassword });
-
-    return res.status(200).json({ message: "Password updated successfully" });
-  } catch (err) {
-    // Log the full error for debugging purposes
-    console.error("Error changing password:", err);
-
-    // Return the error message
-    return res.status(500).json({
-      error: "Error changing password",
-      message: err.message,
-    });
-  }
+  
 };
