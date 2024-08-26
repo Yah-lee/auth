@@ -10,7 +10,7 @@ const User = sequelize.define("User", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    defaultValue: generate8DigitId, // Use the function to generate the id
+    defaultValue: generate8DigitId,
   },
   First_Name: {
     type: DataTypes.STRING,

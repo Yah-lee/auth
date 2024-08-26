@@ -192,7 +192,8 @@ exports.Delete_User = async (req, res) => {
 
 
 exports.Change_Password = async (req, res) => {
-  const { current, new: newPassword, confirm } = req.body;
+  // Destructure the fields from the request body with better variable names
+  const { current, newPassword, confirm } = req.body;
   const userId = req.user.id;
 
   // Check if new password and confirmation match
@@ -223,7 +224,10 @@ exports.Change_Password = async (req, res) => {
 
     return res.status(200).json({ message: "Password updated successfully" });
   } catch (err) {
-    console.error("Error changing password:", err.message);
+    // Log the full error for debugging purposes
+    console.error("Error changing password:", err);
+
+    // Return the error message
     return res.status(500).json({
       error: "Error changing password",
       message: err.message,
