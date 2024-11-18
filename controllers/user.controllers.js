@@ -26,10 +26,14 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ where: { username } });
     if (!user || user.dataValues.password !== password) {
-      return res.status(401).json({ message: "Username or password is incorrect" });
+      return res
+        .status(401)
+        .json({ message: "Username or password is incorrect" });
     }
 
-    const token = jwt.sign({ id: user.id, username }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user.id, username }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
     res.status(200).json({ token });
   } catch (error) {
     console.error("Error logging in:", error.message);
@@ -51,15 +55,25 @@ const getUserById = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 const deleteUser = async (req, res) => {
   try {
-    if (parseInt(req.params.id, 10) !== req.user_id) {
-      return res.status(403).json({ error: "You do not have permission to delete this user" });
+    const userId = parseInt(req.params.id, 10);
+
+    if (req.user_id !== userId) {
+      return res
+        .status(403)
+        .json({ error: "You do not have permission to delete this user" });
     }
 
-    await User.destroy({ where: { id: req.user_id } });
-    res.status(200).json({ message: `Deleted item with ID: ${id}` });
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await User.destroy({ where: { id: userId } });
+    res
+      .status(200)
+      .json({ message: `User with ID ${userId} deleted successfully` });
   } catch (error) {
     console.error("Error deleting user:", error.message);
     res.status(500).json({ message: "Internal server error" });
