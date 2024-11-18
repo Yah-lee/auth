@@ -1,17 +1,18 @@
 const express = require("express");
+const authMiddleware = require("../middlewares/authMiddleware");
+const {
+  createUser,
+  loginUser,
+  getUserById,
+  deleteUser,
+} = require("../controllers/user.controllers");
+
 const router = express.Router();
-const controller = require("../controllers/user.controllers");
-const validate = require("../middlewares/validate");
-const { RegisterValidator } = require("../middlewares/validator");
 
-router.post("/Change_password", controller.Change_Password);
-
-router.post("/Create_User", RegisterValidator, validate, controller.Create_User );
-
-router.post("/Login_User", controller.Login_User);
-
-router.get("/Find_One", controller.Find_One);
-
-router.get("/Find_All", controller.Find_All);
+router.post("/users", createUser);
+router.post("/login", loginUser);
+router.use(authMiddleware);
+router.get("/users/:id", getUserById);
+router.delete("/users/:id", deleteUser);
 
 module.exports = router;

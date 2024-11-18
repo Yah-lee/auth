@@ -1,15 +1,25 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
-const port = 8899;
+const sequelize = require("./config/db");
+const userRoutes = require("./routes/user.routes");
 
+const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-const userRoutes = require("./routes/user.routes");
+// Routes
+app.use(userRoutes);
 
-app.use("/user", userRoutes);
+// Database Sync and Server Start
+const port = 6000;
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+sequelize.sync().then(() => {
+  console.log("Database connected.");
+  app.listen(port, () => {
+    console.log(`App is running on port ${port}`);
+  });
+}).catch(err => {
+  console.error("Database connection failed:", err);
 });
